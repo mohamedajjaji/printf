@@ -9,46 +9,57 @@
 int _printf(const char *format, ...)
 {
 	va_list args;
-	int printed_chars = 0, i;
-	char *str_arg, *p, buf[1024];
+	int printed_chars = 0, printed = 0, ind = 0;
+	int i, flags, width, precision, size;
+	char buf[BUFF_SIZE];
 
 	if (format == NULL)
 		return (-1);
-	if (format[0] == '%' && format[1] == '\0')
-		return (-1);
+
 	va_start(args, format);
-	for (p = (char *)format; *p != '\0'; p++)
+	for (i = 0; format[i] != '\0'; i++)
 	{
-		if (*p != '%')
-			write(1, p, 1), printed_chars++;
+		if (format[i] != '%')
+		{
+			buf[ind++] = format[i];
+			if (ind == BUFF_SIZE)
+				print_buffer(buf, &ind);
+			printed_chars++;
+		}
 		else
 		{
-			switch (*++p)
-			{
-				case 'c':
-					i = va_arg(args, int), buf[0] = i;
-					write(1, buf, 1), printed_chars++;
-					break;
-				case 's':
-					str_arg = va_arg(args, char *);
-					if (str_arg == NULL)
-						str_arg = "(null)";
-					for (i = 0; str_arg[i] != '\0'; i++)
-					{
-						buf[i] = str_arg[i];
-					}
-					write(1, buf, i), printed_chars += i;
-					break;
-				case '%':
-					buf[0] = '%', write(1, buf, 1), printed_chars++;
-					break;
-				default:
-					buf[0] = '%', buf[1] = *p;
-					write(1, buf, 2), printed_chars += 2;
-					break;
-			}
+			print_buffer(buf, &ind);
+
+			flags = get_flags(format, &i);
+			width = get_width(format, &i, args);
+			precision = get_precision(format, &i, args);
+			size = get_size(format, &i);
+
+			++i;
+			printed = handle_print(format, &i, args, buf,
+					flags, width, precision, size);
+			if (printed == -1)
+				return (-1);
+
+			printed_chars += printed;
 		}
 	}
+	print_buffer(buf, &ind);
 	va_end(args);
 	return (printed_chars);
+}
+
+/**
+ * print_buffer - Prints the contents of the buffer if it exist
+ * @buffer: Array of chars
+ * @buff_ind: Index at which to add next char, represents the length
+ *
+ * Return: void
+ */
+void print_buffer(char buffer[], int *buff_ind)
+{
+	if (*buff_ind > 0)
+		write(1, &buffer[0], *buff_ind);
+
+	*buff_ind = 0;
 }
