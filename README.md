@@ -1,5 +1,12 @@
 # TEAM WORK [0x11. C - printf]
 
+## Background Context
+Write your own `printf` function.
+
+![](https://s3.amazonaws.com/intranet-projects-files/holbertonschool-low_level_programming/228/printf.png)
+
+^ In this picture, [Kris](https://twitter.com/krisbredemeier), and [Jul](https://twitter.com/cyrjulien)
+
 ## Requirements
 ## General
 - Allowed editors: vi, vim, emacs
